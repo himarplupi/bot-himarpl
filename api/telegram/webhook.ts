@@ -4,46 +4,40 @@ import TelegramBot from "node-telegram-bot-api";
 
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
-if (!TOKEN) {
-  throw new Error("TELEGRAM_TOKEN is required");
-}
+async function GET(req: VercelRequest, res: VercelResponse) {
+  if (!TOKEN) {
+    return res.status(500).json({
+      ok: false,
+      description: "Internal Server Error",
+      result: `Token not found`,
+    });
+  }
 
-// Create a bot that uses 'polling' to fetch new updates
-const bot = new TelegramBot(TOKEN);
+  const bot = new TelegramBot(TOKEN);
 
-// This informs the Telegram servers of the new webhook.
-bot.setWebHook(`https://bot.himarpl.com/api/telegram/webhook`);
+  if (req.body.message) {
+    const {
+      chat: { id },
+      text,
+    } = req.body.message;
 
-// Matches "/echo [whatever]"
-bot.onText(/\/echo (.+)/, (msg, match) => {
-  // 'msg' is the received Message from Telegram
-  // 'match' is the result of executing the regexp above on the text content
-  // of the message
+    // Create a message to send back
+    // We can use Markdown inside this
+    const message = `✅ Thanks for your message: *"${text}"*\nHave a great day! 👋🏻`;
 
-  const chatId = msg.chat.id;
-  // @ts-ignore
-  const resp = match[1]; // the captured "whatever"
+    await bot.sendMessage(id, message, { parse_mode: "Markdown" });
 
-  // send back the matched "whatever" to the chat
-  bot.sendMessage(chatId, resp);
-});
-
-// Listen for any kind of message. There are different kinds of
-// messages.
-bot.on("message", (msg) => {
-  const chatId = msg.chat.id;
-
-  // send a message to the chat acknowledging receipt of their message
-  bot.sendMessage(chatId, "Received your message");
-});
-
-function GET(req: VercelRequest, res: VercelResponse) {
-  bot.processUpdate(req.body);
+    return res.json({
+      ok: true,
+      description: "Success",
+      result: `Message sent to ${id}`,
+    });
+  }
 
   return res.json({
     ok: true,
     description: "Success",
-    result: `Webhook processed`,
+    result: `No message found`,
   });
 }
 
