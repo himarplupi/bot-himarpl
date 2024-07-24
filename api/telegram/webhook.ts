@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 import TelegramBot from "node-telegram-bot-api";
 
-const TOKEN = process.env.TELEGRAM_TOKEN;
+const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
 if (!TOKEN) {
   throw new Error("TELEGRAM_TOKEN is required");
