@@ -1,7 +1,8 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import crypto from "node:crypto";
 
 const SECRET_KEY = process.env.TELEGRAM_BOT_SECRET;
+
+export const runtime = "edge";
 
 async function GET(req: VercelRequest, res: VercelResponse) {
   if (!SECRET_KEY) {
@@ -24,11 +25,14 @@ async function GET(req: VercelRequest, res: VercelResponse) {
   }
 
   const components = [token, username].join(":");
+  const encoder = new TextEncoder();
+  const data = encoder.encode(components);
+  const hashBuffer = await crypto.subtle.digest("SHA-512", data);
+  const secretToken = Array.from(new Uint8Array(hashBuffer))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
 
-  const secretToken = crypto
-    .createHmac("sha512", SECRET_KEY)
-    .update(components)
-    .digest("hex");
+  console.log(secretToken);
 
   return res.json({
     ok: true,
