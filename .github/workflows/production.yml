@@ -19,3 +19,24 @@ jobs:
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
       - name: Deploy Project Artifacts to Vercel
         run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+  Telegram:
+    runs-on: ubuntu-latest
+    needs: Deploy-Production
+
+    steps:
+      - name: Get Secret Token
+        id: get_secret_token
+        run: |
+          response=$(curl -X GET https://bot.himarpl.com/api/telegram/secretToken \
+            -H "x-telegram-bot-token: ${{ secrets.TELEGRAM_BOT_TOKEN }}" \
+            -H "x-telegram-bot-username: ${{ secrets.TELEGRAM_BOT_USERNAME }}" \
+            -H "Content-type: application/json")
+          secretToken=$(echo "$response" | jq -r '.result.secretToken')
+          echo "SECRET_TOKEN=${secretToken}" >> $GITHUB_ENV
+
+      - name: Set Telegram Webhook
+        run: |
+          curl -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/setWebhook \
+          -H "Content-type: application/json" \
+          -d '{"url": "${{ secrets.TELEGRAM_BOT_WEBHOOK_URL }}", "secret_token": "'$SECRET_TOKEN'"}'
