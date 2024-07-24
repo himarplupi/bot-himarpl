@@ -1,8 +1,10 @@
+const SECRET_KEY = process.env.TELEGRAM_BOT_SECRET;
+
 export async function generateSecretToken(
   token: string | string[],
   username: string | string[]
 ) {
-  const components = [token, username].join(":");
+  const components = [token, username, SECRET_KEY].join(":");
   const encoder = new TextEncoder();
   const data = encoder.encode(components);
   const hashBuffer = await crypto.subtle.digest("SHA-512", data);
