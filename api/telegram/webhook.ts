@@ -4,7 +4,7 @@ import TelegramBot from "node-telegram-bot-api";
 
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
-async function GET(req: VercelRequest, res: VercelResponse) {
+async function POST(req: VercelRequest, res: VercelResponse) {
   if (!TOKEN) {
     return res.status(500).json({
       ok: false,
@@ -44,8 +44,8 @@ async function GET(req: VercelRequest, res: VercelResponse) {
 export default function handler(req: VercelRequest, res: VercelResponse) {
   try {
     switch (req.method) {
-      case "GET":
-        return GET(req, res);
+      case "POST":
+        return POST(req, res);
       default:
         return res.status(405).json({
           ok: false,
