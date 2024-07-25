@@ -1,6 +1,12 @@
 import type TelegramAPI from "node-telegram-bot-api";
 
-import { db } from "../lib/db";
+import { Pool } from "@neondatabase/serverless";
+import { PrismaNeon } from "@prisma/adapter-neon";
+import { PrismaClient } from "@prisma/client";
+
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaNeon(pool);
+const db = new PrismaClient({ adapter });
 
 const API_URL = process.env.TELEGRAM_BOT_API_URL;
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
