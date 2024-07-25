@@ -1,5 +1,6 @@
-require("dotenv").config();
-const fetch = require("node-fetch");
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const BASE_URL = process.argv[2];
 

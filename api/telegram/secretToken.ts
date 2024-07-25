@@ -1,55 +1,60 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
-
 import { generateSecretToken } from "../../lib/utils";
 
 const SECRET_KEY = process.env.TELEGRAM_BOT_SECRET;
 
-export const runtime = "edge";
+export const config = {
+  runtime: "edge",
+};
 
-async function GET(req: VercelRequest, res: VercelResponse) {
+export async function GET(request: Request) {
   if (!SECRET_KEY) {
-    return res.status(500).json({
-      ok: false,
-      description: "Internal Server Error",
-      result: `Secret key not found`,
-    });
+    return new Response(
+      JSON.stringify({
+        ok: false,
+        description: "Internal Server Error",
+        result: `Secret key not found`,
+      }),
+      {
+        status: 500,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
   }
 
-  const token = req.headers["x-telegram-bot-token"];
-  const username = req.headers["x-telegram-bot-username"];
+  const token = request.headers.get("x-telegram-bot-token");
+  const username = request.headers.get("x-telegram-bot-username");
 
   if (!token || !username) {
-    return res.status(400).json({
-      ok: false,
-      description: "Bad Request",
-      result: `Token or username not found`,
-    });
+    return new Response(
+      JSON.stringify({
+        ok: false,
+        description: "Bad Request",
+        result: `Token or username not found`,
+      }),
+      {
+        status: 400,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
   }
 
   const secretToken = await generateSecretToken(token, username);
 
-  return res.json({
-    ok: true,
-    description: "Success",
-    result: { secretToken },
-  });
-}
-
-export default function handler(req: VercelRequest, res: VercelResponse) {
-  try {
-    switch (req.method) {
-      case "GET":
-        return GET(req, res);
-      default:
-        return res.status(405).json({
-          ok: false,
-          description: "Method Not Allowed",
-        });
+  return new Response(
+    JSON.stringify({
+      ok: true,
+      description: "Success",
+      result: { secretToken },
+    }),
+    {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+      },
     }
-  } catch (e) {
-    return res.status(500).json({
-      ok: false,
-      description: "Internal Server Error",
-    });
-  }
+  );
 }
