@@ -3,6 +3,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
+    "postinstall": "npx prisma generate",
     "ngrok": "npx ngrok http http://localhost:3000",
     "db:studio": "npx prisma studio",
     "db:push": "npx prisma db push",
@@ -11,14 +12,19 @@
   "devDependencies": {
     "@types/node": "^17.0.42",
     "@types/node-telegram-bot-api": "^0.64.7",
+    "@types/ws": "^8.5.11",
     "@vercel/node": "^2.9.6",
     "ngrok": "^5.0.0-beta.2",
     "prisma": "^5.17.0",
     "typescript": "^4.7.3"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^0.9.4",
+    "@prisma/adapter-neon": "^5.17.0",
+    "@prisma/client": "^5.17.0",
     "@upstash/ratelimit": "^2.0.1",
     "@upstash/redis": "^1.33.0",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "ws": "^8.18.0"
   }
 }
