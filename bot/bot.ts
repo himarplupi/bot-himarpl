@@ -7,6 +7,16 @@ if (!API_URL || !TOKEN) {
   throw new Error("API URL and Token not specified");
 }
 
+interface Command {
+  command: string;
+  description: string;
+  handler: (chatId: number) => Promise<void>;
+}
+
+interface Commands {
+  [key: string]: Command;
+}
+
 type Method =
   | "GET"
   | "POST"
@@ -44,7 +54,7 @@ const Bot = (token: string) => {
     return response.json();
   }
 
-  return {
+  const methods = {
     /**
      * Sends a message to a chat.
      * @param chatId - The ID of the chat to send the message to.
@@ -59,7 +69,6 @@ const Bot = (token: string) => {
     ): Promise<TelegramAPI.Message> => {
       try {
         const defaultOptions: TelegramAPI.SendMessageOptions = {
-          parse_mode: "Markdown",
           ...options,
         };
         const data = await fetchTelegramAPI<TelegramAPI.Message>(
@@ -81,6 +90,47 @@ const Bot = (token: string) => {
       }
     },
   };
+
+  const commands = {
+    start: {
+      command: "/start",
+      description: "Memulai bot HIMARPL.",
+      handler: async (chatId: number) => {
+        const message = `
+          *Halo, apakah ada yang bisa dibantu?*\n\n /notifyme - Untuk mendapatkan notifikasi terkait postingan terbaru dari [Blog HIMARPL](https://blog.himarpl.com) \n\n| [Website](https://www.himarpl.com) | [Instagram](https://instagram.com/himarpl) | [Youtube](https://www.youtube.com/@himarplcibiru5901) | [TikTok](https://www.tiktok.com/@himarpl) |
+        `;
+
+        await methods.sendMessage(chatId, message, {
+          parse_mode: "Markdown",
+        });
+      },
+    },
+  };
+
+  return {
+    ...methods,
+
+    listenCommands: async (chatId: number, rawTextCommand: string) => {
+      if (!rawTextCommand.startsWith("/")) return;
+
+      const incomingCommand = rawTextCommand.substring(1);
+
+      console.log(`Incoming command: ${incomingCommand}`);
+
+      for (const command in commands) {
+        if (incomingCommand === command) {
+          return await commands[command].handler(chatId);
+        }
+      }
+
+      const message = `Maaf, perintah /${incomingCommand} tidak ditemukan.\nSilakan bila ingin kontribusi dalam project open source ini, kunjungi [GitHub HIMARPL](https://github.com/himarplupi/bot-himarpl)`;
+      return await methods.sendMessage(chatId, message, {
+        parse_mode: "Markdown",
+      });
+    },
+  };
 };
 
-export const bot = Bot(TOKEN);
+const bot = Bot(TOKEN);
+
+export { bot };

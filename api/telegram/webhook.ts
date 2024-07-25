@@ -75,7 +75,12 @@ export async function POST(request: Request) {
     // Send the message back
     const message = `✅ Thanks for your message: *"${text}"*\nHave a great day! 👋🏻`;
 
-    await bot.sendMessage(chat.id, message);
+    // Listen for the incoming command message
+    if (text?.startsWith("/")) {
+      await bot.listenCommands(chat.id, text ?? "");
+    } else {
+      await bot.sendMessage(chat.id, message);
+    }
 
     return new Response(
       JSON.stringify({
