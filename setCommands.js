@@ -36,7 +36,17 @@ async function setCommands() {
         "Content-type": "application/json",
       },
       body: JSON.stringify({
-        commands: [{ command: "/start", description: "Memulai bot HIMARPL" }],
+        commands: [
+          { command: "/start", description: "Memulai bot HIMARPL" },
+          {
+            command: "/notifyme",
+            description: "Tidak ingin ketinggalan info terbaru dari HIMARPL",
+          },
+          {
+            command: "/unnotifyme",
+            description: "Berhenti mendapatkan info terbaru dari HIMARPL :(",
+          },
+        ],
       }),
     }
   );

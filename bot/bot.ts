@@ -98,12 +98,64 @@ const Bot = (token: string) => {
       handler: async (message: TelegramAPI.Message) => {
         const chatId = message.chat.id;
         const msg = `
-          *Halo, apakah ada yang bisa dibantu?*\n\n /notifyme - Untuk mendapatkan notifikasi terkait postingan terbaru dari [Blog HIMARPL](https://blog.himarpl.com) \n\n| [Website](https://www.himarpl.com) | [Instagram](https://instagram.com/himarpl) | [Youtube](https://www.youtube.com/@himarplcibiru5901) | [TikTok](https://www.tiktok.com/@himarpl) |
+          *Halo ${
+            (message.from?.first_name ?? "") +
+            " " +
+            (message.from?.last_name ?? "")
+          }, apakah ada yang bisa dibantu?*\n\n /notifyme - Untuk mendapatkan notifikasi terkait postingan terbaru dari [Blog HIMARPL](https://blog.himarpl.com)
         `;
 
         await methods.sendMessage(chatId, msg, {
           parse_mode: "Markdown",
         });
+
+        await methods.sendMessage(
+          chatId,
+          "Cek juga HIMARPL di:\n| [Website](https://www.himarpl.com) | [Instagram](https://instagram.com/himarpl) | [Youtube](https://www.youtube.com/@himarplcibiru5901) | [TikTok](https://www.tiktok.com/@himarpl) | [Github](https://github.com/himarplupi) |",
+          {
+            parse_mode: "Markdown",
+          }
+        );
+      },
+    },
+    notifyme: {
+      command: "/notifyme",
+      description: "Tidak ingin ketinggalan info terbaru dari HIMARPL",
+      handler: async (message: TelegramAPI.Message) => {
+        const chatId = message.chat.id;
+        const msg = `Yeay, ${message.from?.first_name}! Ditunggu ya pesan cinta dari aku 💖\n😊`;
+
+        await methods.sendMessage(chatId, msg, {
+          parse_mode: "Markdown",
+        });
+
+        await methods.sendMessage(
+          chatId,
+          "Lihat-lihat juga HIMARPL ya, di:\n| [Website](https://www.himarpl.com) | [Instagram](https://instagram.com/himarpl) | [Youtube](https://www.youtube.com/@himarplcibiru5901) | [TikTok](https://www.tiktok.com/@himarpl) | [Github](https://github.com/himarplupi) |",
+          {
+            parse_mode: "Markdown",
+          }
+        );
+      },
+    },
+    unnotifyme: {
+      command: "/unnotifyme",
+      description: "Berhenti mendapatkan info terbaru dari HIMARPL :(",
+      handler: async (message: TelegramAPI.Message) => {
+        const chatId = message.chat.id;
+        const msg = "Oke deh 😞💔";
+
+        await methods.sendMessage(chatId, msg, {
+          parse_mode: "Markdown",
+        });
+
+        await methods.sendMessage(
+          chatId,
+          "...\n\n| [Website](https://www.himarpl.com) | [Instagram](https://instagram.com/himarpl) | [Youtube](https://www.youtube.com/@himarplcibiru5901) | [TikTok](https://www.tiktok.com/@himarpl) | [Github](https://github.com/himarplupi) |",
+          {
+            parse_mode: "Markdown",
+          }
+        );
       },
     },
   };
@@ -126,7 +178,7 @@ const Bot = (token: string) => {
         }
       }
 
-      const msg = `Maaf ya ${message.from?.first_name}, perintah /${incomingCommand} tidak ada.\nKalau ingin kontribusi dalam project open source untuk menaikan levelku, silakan kunjungi [GitHub HIMARPL](https://github.com/himarplupi/bot-himarpl)\n✌️`;
+      const msg = `Maaf ya ${message.from?.first_name}, perintah /${incomingCommand} tidak ada.\nKalau ingin kontribusi dalam project open source untuk menaikan levelku, silakan kunjungi [GitHub HIMARPL](https://github.com/himarplupi/bot-himarpl)\n✌️\n\n| [Website](https://www.himarpl.com) | [Instagram](https://instagram.com/himarpl) | [Youtube](https://www.youtube.com/@himarplcibiru5901) | [TikTok](https://www.tiktok.com/@himarpl) | [Github](https://github.com/himarplupi) |`;
       return await methods.sendMessage(chatId, msg, {
         parse_mode: "Markdown",
       });

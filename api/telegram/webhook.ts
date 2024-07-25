@@ -76,7 +76,7 @@ export async function POST(request: Request) {
     if (message.text?.startsWith("/")) {
       await bot.listenCommands(message, message.text ?? "");
     } else if (message.from) {
-      const msg = `Halo, *${message.from.first_name}*!\nUntuk saat ini aku hanya bisa memberikan notifikasi 😁\n Kalau ingin kontribusi dalam project open source untuk menaikan levelku, silakan kunjungi [GitHub HIMARPL](https://github.com/himarplupi/bot-himarpl)\n✌️`;
+      const msg = `Halo, *${message.from.first_name}*!\nUntuk saat ini aku hanya bisa memberikan notifikasi 😁\nKalau ingin kontribusi dalam project open source untuk menaikan levelku, silakan kunjungi [GitHub HIMARPL](https://github.com/himarplupi/bot-himarpl)\n✌️\n\nCek juga HIMARPL di:\n| [Website](https://www.himarpl.com) | [Instagram](https://instagram.com/himarpl) | [Youtube](https://www.youtube.com/@himarplcibiru5901) | [TikTok](https://www.tiktok.com/@himarpl) | [Github](https://github.com/himarplupi) |`;
       await bot.sendMessage(message.chat.id, msg, {
         parse_mode: "Markdown",
       });
