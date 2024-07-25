@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
+import bot, { type Message } from "../../bot";
 import { generateSecretToken } from "../../lib/utils";
-import type { Message, SendMessageOptions } from "../../lib/types";
 
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const BOT_USERNAME = process.env.TELEGRAM_BOT_USERNAME;
@@ -34,28 +34,8 @@ async function POST(req: VercelRequest, res: VercelResponse) {
 
     // Send the message back
     const message = `✅ Thanks for your message: *"${text}"*\nHave a great day! 👋🏻`;
-    const sendMessageUrl = `${API_URL}/bot${TOKEN}/sendMessage`;
-    const options: SendMessageOptions = {
-      chat_id: chat.id,
-      text: message,
-      parse_mode: "Markdown",
-    };
 
-    const response = await fetch(sendMessageUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(options),
-    });
-
-    if (!response.ok) {
-      return res.status(500).json({
-        ok: false,
-        description: "Internal Server Error",
-        result: `Failed to send message to ${chat.id}`,
-      });
-    }
+    await bot.sendMessage(chat.id, message);
 
     return res.json({
       ok: true,
