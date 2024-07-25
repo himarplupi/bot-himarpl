@@ -9,5 +9,9 @@ datasource db {
 }
 
 model Notification {
-  chatId String @unique
+  chatId    Int      @unique @map("chat_id")
+  firstName String   @map("first_name")
+  lastName  String   @map("last_name")
+  username  String
+  createdAt DateTime @default(now()) @map("created_at")
 }
