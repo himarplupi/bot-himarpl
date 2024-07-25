@@ -183,6 +183,41 @@ const Bot = (token: string) => {
       description: "Berhenti mendapatkan info terbaru dari HIMARPL :(",
       handler: async (message: TelegramAPI.Message) => {
         const chatId = message.chat.id;
+
+        const exist = await db.notification.findFirst({
+          where: {
+            chatId: chatId,
+          },
+        });
+
+        if (!exist) {
+          await methods.sendMessage(
+            chatId,
+            `/notifyme dulu ya, *${message.from?.first_name}* 😁`,
+            {
+              parse_mode: "Markdown",
+            }
+          );
+          return;
+        }
+
+        const result = await db.notification.delete({
+          where: {
+            chatId: chatId,
+          },
+        });
+
+        if (!result) {
+          await methods.sendMessage(
+            chatId,
+            `Maaf ya, *${message.from?.first_name}* 😞 Kurirnya lagi macet nih. Coba lagi nanti ya!`,
+            {
+              parse_mode: "Markdown",
+            }
+          );
+          return;
+        }
+
         const msg = "Oke deh 😞💔";
 
         await methods.sendMessage(chatId, msg, {
