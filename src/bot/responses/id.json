@@ -1,0 +1,31 @@
+{
+  "lang": "id",
+  "name": "Bahasa Indonesia",
+  "format": "Markdown",
+  "vars": {
+    "first_name": "string",
+    "last_name": "string"
+  },
+  "responses": {
+    "default": "Halo, *${first_name}*!\nUntuk saat ini aku hanya bisa memberikan notifikasi 😁\nKalau ingin kontribusi dalam project open source untuk menaikan levelku, silakan kunjungi [GitHub HIMARPL](https://github.com/himarplupi/bot-himarpl)\n✌️",
+    "cta": "\n\n| [Website](https://www.himarpl.com) | [Instagram](https://instagram.com/himarpl) | [Youtube](https://www.youtube.com/@himarplcibiru5901) | [TikTok](https://www.tiktok.com/@himarpl) | [Github](https://github.com/himarplupi) |\n\n---",
+    "commands": {
+      "/start": {
+        "success": "*Halo ${first_name} ${last_name}, apakah ada yang bisa dibantu?*\n\n /notifyme - Untuk mendapatkan notifikasi terkait postingan terbaru dari [Blog HIMARPL](https://blog.himarpl.com)",
+        "to-cta": "Cek juga HIMARPL disini"
+      },
+      "/notify": {
+        "success": "Yeay, *${first_name}*! Ditunggu ya pesan cinta dari aku 💖😊",
+        "failed": "Maaf ya, *${first_name}* 😞 Kurirnya lagi macet nih. Coba lagi nanti ya!",
+        "nothing": "Sabar ya, *${first_name}* 😊 Nanti aku pasti kirim kok!",
+        "to-cta": "Lihat-lihat juga tentang HIMARPL disini ya!"
+      },
+      "/unnotify": {
+        "success": "Oke deh 😞💔",
+        "failed": "Maaf ya, *${first_name}* 😞 Kurirnya lagi macet nih. Coba lagi nanti ya!",
+        "nothing": "/notifyme dulu ya, *${first_name}* 😁",
+        "to-cta": "..."
+      }
+    }
+  }
+}

@@ -5,4 +5,6 @@ export interface SendMessageOptions extends NodeApi.SendMessageOptions {
   text: string;
 }
 
-export interface Message extends NodeApi.Message {}
+export type Message = NodeApi.Message;
+
+export type Update = NodeApi.Update;
