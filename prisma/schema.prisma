@@ -9,7 +9,7 @@ datasource db {
 }
 
 model Notification {
-  chatId    Int      @unique @map("chat_id")
+  chatId    BigInt   @unique @map("chat_id")
   firstName String   @map("first_name")
   lastName  String   @map("last_name")
   username  String

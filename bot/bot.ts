@@ -1,5 +1,7 @@
 import type TelegramAPI from "node-telegram-bot-api";
 
+import { db } from "../lib/db";
+
 const API_URL = process.env.TELEGRAM_BOT_API_URL;
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
@@ -123,7 +125,45 @@ const Bot = (token: string) => {
       description: "Tidak ingin ketinggalan info terbaru dari HIMARPL",
       handler: async (message: TelegramAPI.Message) => {
         const chatId = message.chat.id;
-        const msg = `Yeay, ${message.from?.first_name}! Ditunggu ya pesan cinta dari aku 💖\n😊`;
+
+        const exist = await db.notification.findFirst({
+          where: {
+            chatId: chatId,
+          },
+        });
+
+        if (exist) {
+          await methods.sendMessage(
+            chatId,
+            `Sabar ya, *${message.from?.first_name}* 😊 Nanti aku pasti kirim kok!`,
+            {
+              parse_mode: "Markdown",
+            }
+          );
+          return;
+        }
+
+        const result = await db.notification.create({
+          data: {
+            chatId: chatId,
+            firstName: message.from?.first_name ?? "",
+            lastName: message.from?.last_name ?? "",
+            username: message.from?.username ?? "",
+          },
+        });
+
+        if (!result) {
+          await methods.sendMessage(
+            chatId,
+            `Maaf ya, *${message.from?.first_name}* 😞 Kurirnya lagi macet nih. Coba lagi nanti ya!`,
+            {
+              parse_mode: "Markdown",
+            }
+          );
+          return;
+        }
+
+        const msg = `Yeay, *${message.from?.first_name}*! Ditunggu ya pesan cinta dari aku 💖😊`;
 
         await methods.sendMessage(chatId, msg, {
           parse_mode: "Markdown",
