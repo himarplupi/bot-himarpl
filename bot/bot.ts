@@ -10,7 +10,7 @@ if (!API_URL || !TOKEN) {
 interface Command {
   command: string;
   description: string;
-  handler: (chatId: number) => Promise<void>;
+  handler: (message: TelegramAPI.Message) => Promise<void>;
 }
 
 interface Commands {
@@ -95,12 +95,13 @@ const Bot = (token: string) => {
     start: {
       command: "/start",
       description: "Memulai bot HIMARPL",
-      handler: async (chatId: number) => {
-        const message = `
+      handler: async (message: TelegramAPI.Message) => {
+        const chatId = message.chat.id;
+        const msg = `
           *Halo, apakah ada yang bisa dibantu?*\n\n /notifyme - Untuk mendapatkan notifikasi terkait postingan terbaru dari [Blog HIMARPL](https://blog.himarpl.com) \n\n| [Website](https://www.himarpl.com) | [Instagram](https://instagram.com/himarpl) | [Youtube](https://www.youtube.com/@himarplcibiru5901) | [TikTok](https://www.tiktok.com/@himarpl) |
         `;
 
-        await methods.sendMessage(chatId, message, {
+        await methods.sendMessage(chatId, msg, {
           parse_mode: "Markdown",
         });
       },
@@ -110,21 +111,23 @@ const Bot = (token: string) => {
   return {
     ...methods,
     commands,
-    listenCommands: async (chatId: number, rawTextCommand: string) => {
+    listenCommands: async (
+      message: TelegramAPI.Message,
+      rawTextCommand: string
+    ) => {
       if (!rawTextCommand.startsWith("/")) return;
 
+      const chatId = message.chat.id;
       const incomingCommand = rawTextCommand.substring(1);
-
-      console.log(`Incoming command: ${incomingCommand}`);
 
       for (const command in commands) {
         if (incomingCommand === command) {
-          return await commands[command].handler(chatId);
+          return await commands[command].handler(message);
         }
       }
 
-      const message = `Maaf, perintah /${incomingCommand} tidak ditemukan.\nSilakan bila ingin kontribusi dalam project open source ini, kunjungi [GitHub HIMARPL](https://github.com/himarplupi/bot-himarpl)`;
-      return await methods.sendMessage(chatId, message, {
+      const msg = `Maaf ya ${message.from?.first_name}, perintah /${incomingCommand} tidak ada.\nKalau ingin kontribusi dalam project open source untuk menaikan levelku, silakan kunjungi [GitHub HIMARPL](https://github.com/himarplupi/bot-himarpl)\n✌️`;
+      return await methods.sendMessage(chatId, msg, {
         parse_mode: "Markdown",
       });
     },

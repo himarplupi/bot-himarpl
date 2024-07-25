@@ -70,23 +70,23 @@ export async function POST(request: Request) {
   const body = await request.json();
 
   if (body && body.message) {
-    const { chat, text } = body.message as Message;
-
-    // Send the message back
-    const message = `✅ Thanks for your message: *"${text}"*\nHave a great day! 👋🏻`;
+    const message = body.message as Message;
 
     // Listen for the incoming command message
-    if (text?.startsWith("/")) {
-      await bot.listenCommands(chat.id, text ?? "");
-    } else {
-      await bot.sendMessage(chat.id, message);
+    if (message.text?.startsWith("/")) {
+      await bot.listenCommands(message, message.text ?? "");
+    } else if (message.from) {
+      const msg = `Halo, *${message.from.first_name}*!\nUntuk saat ini aku hanya bisa memberikan notifikasi 😁\n Kalau ingin kontribusi dalam project open source untuk menaikan levelku, silakan kunjungi [GitHub HIMARPL](https://github.com/himarplupi/bot-himarpl)\n✌️`;
+      await bot.sendMessage(message.chat.id, msg, {
+        parse_mode: "Markdown",
+      });
     }
 
     return new Response(
       JSON.stringify({
         ok: true,
         description: "Success",
-        result: `Message sent to ${chat.id}`,
+        result: `Message sent to ${message.chat.id}`,
       }),
       {
         status: 200,
