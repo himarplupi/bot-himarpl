@@ -66,7 +66,7 @@ const Bot = (token: string) => {
       chatId: number,
       text: string,
       options?: TelegramAPI.SendMessageOptions
-    ): Promise<TelegramAPI.Message> => {
+    ): Promise<TelegramAPI.Message | undefined> => {
       try {
         const defaultOptions: TelegramAPI.SendMessageOptions = {
           ...options,
@@ -86,15 +86,15 @@ const Bot = (token: string) => {
         return data;
       } catch (error) {
         console.error(error);
-        return error;
+        return;
       }
     },
   };
 
-  const commands = {
+  const commands: Commands = {
     start: {
       command: "/start",
-      description: "Memulai bot HIMARPL.",
+      description: "Memulai bot HIMARPL",
       handler: async (chatId: number) => {
         const message = `
           *Halo, apakah ada yang bisa dibantu?*\n\n /notifyme - Untuk mendapatkan notifikasi terkait postingan terbaru dari [Blog HIMARPL](https://blog.himarpl.com) \n\n| [Website](https://www.himarpl.com) | [Instagram](https://instagram.com/himarpl) | [Youtube](https://www.youtube.com/@himarplcibiru5901) | [TikTok](https://www.tiktok.com/@himarpl) |
@@ -109,7 +109,7 @@ const Bot = (token: string) => {
 
   return {
     ...methods,
-
+    commands,
     listenCommands: async (chatId: number, rawTextCommand: string) => {
       if (!rawTextCommand.startsWith("/")) return;
 
