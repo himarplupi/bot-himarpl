@@ -76,28 +76,23 @@ const Bot = (token: string) => {
       text: string,
       options?: TelegramAPI.SendMessageOptions,
     ): Promise<TelegramAPI.Message | undefined> => {
-      try {
-        const defaultOptions: TelegramAPI.SendMessageOptions = {
-          parse_mode: PARSE_MODE,
-          ...options,
-        };
-        const data = await fetchTelegramAPI<TelegramAPI.Message>(
-          "/sendMessage",
-          "POST",
-          {
-            body: JSON.stringify({
-              chat_id: chatId,
-              text,
-              ...defaultOptions,
-            }),
-          },
-        );
+      const defaultOptions: TelegramAPI.SendMessageOptions = {
+        parse_mode: PARSE_MODE,
+        ...options,
+      };
+      const data = await fetchTelegramAPI<TelegramAPI.Message>(
+        "/sendMessage",
+        "POST",
+        {
+          body: JSON.stringify({
+            chat_id: chatId,
+            text,
+            ...defaultOptions,
+          }),
+        },
+      );
 
-        return data;
-      } catch (error) {
-        console.error(error);
-        return;
-      }
+      return data;
     },
   };
 
@@ -126,10 +121,9 @@ const Bot = (token: string) => {
         const lastName = message.from?.last_name ?? "";
         const username = message.from?.username ?? "";
 
-        const exist = await db
-          .select()
-          .from(notifications)
-          .where(eq(notifications.chatId, chatId));
+        const exist = await db.query.notifications.findFirst({
+          where: eq(notifications.chatId, chatId),
+        });
 
         if (exist) {
           const currentResponse = responses.commands["/notify"].nothing.replace(
@@ -147,7 +141,7 @@ const Bot = (token: string) => {
           username: username,
         });
 
-        if (result.rows.length === 0) {
+        if (!result) {
           const currentResponse = responses.commands["/notify"].failed.replace(
             "${first_name}",
             firstName,
@@ -175,10 +169,9 @@ const Bot = (token: string) => {
         const chatId = message.chat.id;
         const firstName = message.from?.first_name ?? "";
 
-        const exist = await db
-          .select()
-          .from(notifications)
-          .where(eq(notifications.chatId, chatId));
+        const exist = await db.query.notifications.findFirst({
+          where: eq(notifications.chatId, chatId),
+        });
 
         if (!exist) {
           const currentResponse = responses.commands[
