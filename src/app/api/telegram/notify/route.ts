@@ -51,11 +51,6 @@ export async function POST(request: Request) {
       },
       {
         status: 401,
-        headers: {
-          "Cache-Control": "public, s-maxage=1",
-          "CDN-Cache-Control": "public, s-maxage=60",
-          "Vercel-CDN-Cache-Control": "public, s-maxage=3600",
-        },
       },
     );
   }
@@ -73,25 +68,26 @@ export async function POST(request: Request) {
     },
     {
       status: 200,
-      headers: {
-        "Cache-Control": "public, s-maxage=1",
-        "CDN-Cache-Control": "public, s-maxage=60",
-        "Vercel-CDN-Cache-Control": "public, s-maxage=3600",
-      },
     },
   );
 }
 
 // This function behaves like a cron job that runs every 1 second for the limitation of telegram API
 async function intervalNotify(body: NotifyBody) {
+  const baseUrl = "https://blog.himarpl.com";
+  const title = body.title;
+  const slug = body.slug;
+  const name = body.author.name;
+  const username = body.author.username;
+
   const unnotify = await api.notification.getUnnotify({
-    slug: body.slug,
+    slug: `@${username}/${slug}`,
     limit: 25,
   });
 
   if (unnotify.length === 0) {
     const removed = await api.notification.removeNotify({
-      slug: body.slug,
+      slug: `@${username}/${slug}`,
     });
 
     if (!removed) {
@@ -101,17 +97,10 @@ async function intervalNotify(body: NotifyBody) {
     return;
   }
 
-  const baseUrl = "https://blog.himarpl.com";
-  const title = body.title;
-  const slug = body.slug;
-
-  const name = body.author.name;
-  const username = body.author.username;
-
   for (const notification of unnotify) {
     await bot.sendMessage(
       notification.chatId,
-      `📢 *[${title}](${baseUrl}/@${username}/${slug}*\n\n📝 [${name}](${baseUrl}/@${username})`,
+      `*${notification.firstName?.toUpperCase()}, ADA POSTINGAN BARU!*\n\n[${title?.toUpperCase()}](${baseUrl}/@${username}/${slug})\nditulis oleh [${name}](${baseUrl}/@${username})`,
       {
         parse_mode: "Markdown",
       },
@@ -119,7 +108,7 @@ async function intervalNotify(body: NotifyBody) {
   }
 
   const notify = await api.notification.notify({
-    slug: body.slug,
+    slug: `@${username}/${slug}`,
     chatIds: unnotify.map((n) => n.chatId),
   });
 
@@ -128,7 +117,10 @@ async function intervalNotify(body: NotifyBody) {
   }
 
   setTimeout(() => {
-    waitUntil(intervalNotify(body));
+    // waitUntil(intervalNotify(body));
+    intervalNotify(body).catch((err) => {
+      console.error(err);
+    });
   }, 1000);
 
   return;

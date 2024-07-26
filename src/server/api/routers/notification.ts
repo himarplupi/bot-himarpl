@@ -39,14 +39,15 @@ export const notificationRouter = createTRPCRouter({
   notify: publicProcedure
     .input(z.object({ slug: z.string(), chatIds: z.array(z.number()).min(1) }))
     .mutation(async ({ ctx, input }) => {
-      const prev = await ctx.db.query.notifications.findMany({
+      const prevNotif = await ctx.db.query.notifications.findMany({
         where: (notification) => inArray(notification.chatId, input.chatIds),
         columns: {
+          chatId: true,
           notifying: true,
         },
       });
 
-      if (!prev) {
+      if (!prevNotif) {
         return new TRPCError({
           code: "NOT_FOUND",
           message: "Notification not found",
@@ -55,14 +56,20 @@ export const notificationRouter = createTRPCRouter({
 
       // Update many rows at once
       const sqlChunks: SQL[] = [];
+      const ids: number[] = [];
 
       sqlChunks.push(sql`(case`);
 
-      for (const currentChatId of input.chatIds) {
-        const currentNotif = [...prev, input.slug];
+      for (const currentNotif of prevNotif) {
+        const currentNotifying = [...currentNotif.notifying, input.slug]
+          .map((item) => `'${item}'`)
+          .join(", ");
+
         sqlChunks.push(
-          sql`when ${notifications.chatId} = ${currentChatId} then ${currentNotif}`,
+          sql`when ${notifications.chatId} = ${currentNotif.chatId} then ARRAY[${sql.raw(`${currentNotifying}`)}]::text[]`,
         );
+
+        ids.push(currentNotif.chatId);
       }
 
       sqlChunks.push(sql`end)`);
@@ -72,7 +79,7 @@ export const notificationRouter = createTRPCRouter({
       return await ctx.db
         .update(notifications)
         .set({ notifying: finalSql })
-        .where(inArray(notifications.chatId, input.chatIds));
+        .where(inArray(notifications.chatId, ids));
     }),
   removeNotify: publicProcedure
     .input(z.object({ slug: z.string() }))
@@ -98,11 +105,13 @@ export const notificationRouter = createTRPCRouter({
       sqlChunks.push(sql`(case`);
 
       for (const currentNotif of prevNotif) {
-        const currentNotifying = currentNotif.notifying.filter(
-          (slug) => slug !== input.slug,
-        );
+        const currentNotifying = currentNotif.notifying
+          .filter((item) => item !== input.slug)
+          .map((item) => `'${item}'`)
+          .join(", ");
+
         sqlChunks.push(
-          sql`when ${notifications.chatId} = ${currentNotif.chatId} then ${currentNotifying}`,
+          sql`when ${notifications.chatId} = ${currentNotif.chatId} then ARRAY[${sql.raw(`${currentNotifying}`)}]::text[]`,
         );
         ids.push(currentNotif.chatId);
       }
