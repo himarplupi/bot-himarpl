@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 
-import { ipAddress } from "@vercel/functions";
+import { ipAddress, waitUntil } from "@vercel/functions";
 
+import bot from "~/bot";
 import { env } from "~/env";
 import { ratelimit } from "~/server/ratelimit";
+import { api } from "~/trpc/server";
 
 const API_TOKEN = env.API_TOKEN;
 
@@ -49,21 +51,85 @@ export async function POST(request: Request) {
       },
       {
         status: 401,
+        headers: {
+          "Cache-Control": "public, s-maxage=1",
+          "CDN-Cache-Control": "public, s-maxage=60",
+          "Vercel-CDN-Cache-Control": "public, s-maxage=3600",
+        },
       },
     );
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const body = await request.json();
+  const body: NotifyBody = await request.json();
+
+  waitUntil(intervalNotify(body));
 
   return NextResponse.json(
     {
-      ok: false,
-      description: "Bad Request",
-      result: `Invalid request body`,
+      ok: true,
+      description: "Notification sent",
+      result: "Notification sent successfully",
     },
     {
-      status: 400,
+      status: 200,
+      headers: {
+        "Cache-Control": "public, s-maxage=1",
+        "CDN-Cache-Control": "public, s-maxage=60",
+        "Vercel-CDN-Cache-Control": "public, s-maxage=3600",
+      },
     },
   );
+}
+
+// This function behaves like a cron job that runs every 1 second for the limitation of telegram API
+async function intervalNotify(body: NotifyBody) {
+  const unnotify = await api.notification.getUnnotify({
+    slug: body.slug,
+    limit: 25,
+  });
+
+  if (unnotify.length === 0) {
+    const removed = await api.notification.removeNotify({
+      slug: body.slug,
+    });
+
+    if (!removed) {
+      console.error(JSON.stringify(removed));
+    }
+
+    return;
+  }
+
+  const baseUrl = "https://blog.himarpl.com";
+  const title = body.title;
+  const slug = body.slug;
+
+  const name = body.author.name;
+  const username = body.author.username;
+
+  for (const notification of unnotify) {
+    await bot.sendMessage(
+      notification.chatId,
+      `📢 *[${title}](${baseUrl}/@${username}/${slug}*\n\n📝 [${name}](${baseUrl}/@${username})`,
+      {
+        parse_mode: "Markdown",
+      },
+    );
+  }
+
+  const notify = await api.notification.notify({
+    slug: body.slug,
+    chatIds: unnotify.map((n) => n.chatId),
+  });
+
+  if (!notify) {
+    console.error(JSON.stringify(notify));
+  }
+
+  setTimeout(() => {
+    waitUntil(intervalNotify(body));
+  }, 1000);
+
+  return;
 }
