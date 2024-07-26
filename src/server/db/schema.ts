@@ -6,6 +6,7 @@ import {
   bigserial,
   index,
   pgTableCreator,
+  text,
   timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -28,8 +29,12 @@ export const notifications = createTable(
     createdAt: timestamp("created_at", { withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
+    notifying: text("notifying")
+      .array()
+      .notNull()
+      .default(sql`ARRAY[]::text[]`),
   },
   (notifications) => ({
-    usernameIndex: index("username_idx").on(notifications.username),
+    chatIdIndex: index("chat_id_idx").on(notifications.chatId),
   }),
 );
