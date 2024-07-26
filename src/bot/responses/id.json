@@ -8,7 +8,8 @@
   },
   "responses": {
     "default": "Halo, *${first_name}*!\nUntuk saat ini aku hanya bisa memberikan notifikasi 😁\nKalau ingin kontribusi dalam project open source untuk menaikan levelku, silakan kunjungi [GitHub HIMARPL](https://github.com/himarplupi/bot-himarpl)\n✌️",
-    "cta": "\n------------------------------------------------------------------------------\n| [Website](https://www.himarpl.com) | [Instagram](https://instagram.com/himarpl) | [Youtube](https://www.youtube.com/@himarplcibiru5901) | [TikTok](https://www.tiktok.com/@himarpl) | [Github](https://github.com/himarplupi) |\n------------------------------------------------------------------------------",
+    "to-cta": "Cek juga HIMARPL disini",
+    "cta": "\n\n| [Website](https://www.himarpl.com)\n| [Instagram](https://instagram.com/himarpl)\n| [Youtube](https://www.youtube.com/@himarplcibiru5901)\n| [TikTok](https://www.tiktok.com/@himarpl)\n| [Github](https://github.com/himarplupi)\n",
     "commands": {
       "/start": {
         "success": "*Halo ${first_name} ${last_name}, apakah ada yang bisa dibantu?*\n\n /notifyme - Untuk mendapatkan notifikasi terkait postingan terbaru dari Blog HIMARPL",

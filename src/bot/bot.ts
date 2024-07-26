@@ -207,6 +207,7 @@ const Bot = (token: string) => {
   return {
     ...methods,
     commands,
+    responses: ResponsesID.responses,
     listenCommands: async (
       message: TelegramAPI.Message,
       rawTextCommand: string,
