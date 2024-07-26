@@ -1,4 +1,4 @@
-import { arrayContains, eq, not } from "drizzle-orm";
+import { arrayContains, inArray, not, type SQL, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import { TRPCError } from "@trpc/server";
@@ -37,10 +37,10 @@ export const notificationRouter = createTRPCRouter({
       });
     }),
   notify: publicProcedure
-    .input(z.object({ slug: z.string(), chatId: z.number() }))
+    .input(z.object({ slug: z.string(), chatIds: z.array(z.number()).min(1) }))
     .mutation(async ({ ctx, input }) => {
-      const prev = await ctx.db.query.notifications.findFirst({
-        where: (notification) => eq(notification.chatId, input.chatId),
+      const prev = await ctx.db.query.notifications.findMany({
+        where: (notification) => inArray(notification.chatId, input.chatIds),
         columns: {
           notifying: true,
         },
@@ -53,37 +53,67 @@ export const notificationRouter = createTRPCRouter({
         });
       }
 
+      // Update many rows at once
+      const sqlChunks: SQL[] = [];
+
+      sqlChunks.push(sql`(case`);
+
+      for (const currentChatId of input.chatIds) {
+        const currentNotif = [...prev, input.slug];
+        sqlChunks.push(
+          sql`when ${notifications.chatId} = ${currentChatId} then ${currentNotif}`,
+        );
+      }
+
+      sqlChunks.push(sql`end)`);
+
+      const finalSql = sql.join(sqlChunks, sql.raw(" "));
+
       return await ctx.db
         .update(notifications)
-        .set({
-          notifying: [...prev.notifying, input.slug],
-        })
-        .where(eq(notifications.chatId, input.chatId));
+        .set({ notifying: finalSql })
+        .where(inArray(notifications.chatId, input.chatIds));
     }),
   removeNotify: publicProcedure
-    .input(z.object({ slug: z.string(), chatId: z.number() }))
+    .input(z.object({ slug: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const prev = await ctx.db.query.notifications.findFirst({
-        where: (notification) => eq(notification.chatId, input.chatId),
+      const prevNotif = await ctx.db.query.notifications.findMany({
         columns: {
+          chatId: true,
           notifying: true,
         },
       });
 
-      if (!prev) {
+      if (!prevNotif) {
         return new TRPCError({
           code: "NOT_FOUND",
           message: "Notification not found",
         });
       }
 
-      const newNotifying = prev.notifying.filter((slug) => slug !== input.slug);
+      // Update many rows at once
+      const sqlChunks: SQL[] = [];
+      const ids: number[] = [];
+
+      sqlChunks.push(sql`(case`);
+
+      for (const currentNotif of prevNotif) {
+        const currentNotifying = currentNotif.notifying.filter(
+          (slug) => slug !== input.slug,
+        );
+        sqlChunks.push(
+          sql`when ${notifications.chatId} = ${currentNotif.chatId} then ${currentNotifying}`,
+        );
+        ids.push(currentNotif.chatId);
+      }
+
+      sqlChunks.push(sql`end)`);
+
+      const finalSql = sql.join(sqlChunks, sql.raw(" "));
 
       return await ctx.db
         .update(notifications)
-        .set({
-          notifying: newNotifying,
-        })
-        .where(eq(notifications.chatId, input.chatId));
+        .set({ notifying: finalSql })
+        .where(inArray(notifications.chatId, ids));
     }),
 });
