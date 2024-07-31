@@ -10,7 +10,7 @@
 
 
 <p align="center">
-  <img src="https://cdn.jsdelivr.net/gh/himarplupi/assets-himarpl@main/images/phoenix-chan.png">
+  <img src="https://cdn.jsdelivr.net/gh/himarplupi/assets-himarpl@main/images/phoenix-chan-512x512.png">
 </p>
 
 <p align="center">
