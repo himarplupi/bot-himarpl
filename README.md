@@ -8,9 +8,10 @@
   </a>
 </p>
 
-
 <p align="center">
-  <img src="https://cdn.jsdelivr.net/gh/himarplupi/assets-himarpl@main/images/phoenix-chan-512x512.png" width="200px">
+  <a href="https://t.me/himarpl_bot">
+    <img src="https://cdn.jsdelivr.net/gh/himarplupi/assets-himarpl@main/images/phoenix-chan-512x512.png" width="200px">
+  </a>
 </p>
 
 <p align="center">
