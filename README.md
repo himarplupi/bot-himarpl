@@ -8,6 +8,11 @@
   </a>
 </p>
 
+
+<p align="center">
+  <img src="https://cdn.jsdelivr.net/gh/himarplupi/assets-himarpl@main/images/phoenix-chan.png" width="200px">
+</p>
+
 <p align="center">
   Bot HIMARPL dibuat menggunakan Next.js dengan Telegram API Webhooks.
 </p>
@@ -27,7 +32,7 @@
 
 ## Ini repo apa sih?
 
-Bot HIMARPL yang diberi nama Phoenix-chan oleh [Departemen Kominfo HIMARPL](https://www.himarpl.com/about/be/kominfo) adalah bot resmi Himpunan Mahasiswa Rekayasa Perangkat Lunak. Repo ini adalah kode sumber untuk bot tersebut.
+Bot HIMARPL yang diberi nama [Phoenix-chan](https://t.me/himarpl_bot) oleh [Departemen Kominfo HIMARPL](https://www.himarpl.com/about/be/kominfo) adalah bot resmi Himpunan Mahasiswa Rekayasa Perangkat Lunak. Repo ini adalah kode sumber untuk bot tersebut.
 
 ## Instalasi
 
